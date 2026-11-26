@@ -6,6 +6,7 @@ on:
     branches: [roothide-build]
     paths:
       - "packages/loader/**"
+      - ".github/scripts/build-roothide-deb.sh"
       - ".github/workflows/roothide-deb.yml"
 
 concurrency:
@@ -58,37 +59,16 @@ jobs:
           test -d "$THEOS/makefiles"
           test -x "$THEOS/bin/nic.pl" || test -d "$THEOS/bin"
 
-      - name: Build RootHide package
-        working-directory: packages/loader
+      - name: Build and verify RootHide package
         shell: bash
-        run: |
-          set -euo pipefail
-          unbound-tools build tweak --configuration release --non-interactive
+        run: bash .github/scripts/build-roothide-deb.sh
 
-      - name: Verify Debian package metadata
-        working-directory: packages/loader
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          packages=(ios/packages/*.deb)
-          if [ "${#packages[@]}" -ne 1 ]; then
-            echo "Expected exactly one .deb, found ${#packages[@]}"
-            printf '%s\\n' "${packages[@]}"
-            exit 1
-          fi
-          deb="${packages[0]}"
-          dpkg-deb --info "$deb"
-          architecture="$(dpkg-deb -f "$deb" Architecture)"
-          package="$(dpkg-deb -f "$deb" Package)"
-          test "$architecture" = "iphoneos-arm64e"
-          test "$package" = "app.unbound.ios"
-          echo "Verified: $deb ($package, $architecture)"
-
-      - name: Upload RootHide .deb
+      - name: Upload RootHide package and checksum
         uses: actions/upload-artifact@v4
         with:
           name: unbound-roothide-deb
-          path: packages/loader/ios/packages/*.deb
+          path: |
+            packages/loader/ios/packages/*.deb
+            packages/loader/ios/packages/*.deb.sha256
           if-no-files-found: error
           retention-days: 14
