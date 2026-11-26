@@ -16,7 +16,6 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     env:
-      THEOS: ${{ runner.temp }}/theos
       THEOS_PACKAGE_SCHEME: roothide
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
@@ -32,32 +31,44 @@ jobs:
         uses: ./.github/actions/setup-go-tools
 
       - name: Install build dependencies
+        shell: bash
         run: |
+          set -euo pipefail
           brew install ldid make autoconf automake libtool
-          echo "THEOS=$THEOS" >> "$GITHUB_ENV"
-          echo "$THEOS/bin" >> "$GITHUB_PATH"
+          echo "THEOS=$RUNNER_TEMP/theos" >> "$GITHUB_ENV"
+          {
+            echo "$(brew --prefix make)/libexec/gnubin"
+            echo "$(brew --prefix autoconf)/bin"
+            echo "$(brew --prefix automake)/bin"
+            echo "$(brew --prefix libtool)/bin"
+            echo "$RUNNER_TEMP/theos/bin"
+          } >> "$GITHUB_PATH"
 
       - name: Install RootHide Theos
+        shell: bash
         run: |
           set -euo pipefail
           bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
           test -d "$THEOS/makefiles"
+          test -x "$THEOS/bin/nic.pl" || test -d "$THEOS/bin"
 
       - name: Build RootHide package
         working-directory: packages/loader
+        shell: bash
         run: |
           set -euo pipefail
           unbound-tools build tweak --configuration release --non-interactive
 
       - name: Verify Debian package metadata
         working-directory: packages/loader
+        shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
           packages=(ios/packages/*.deb)
           if [ "${#packages[@]}" -ne 1 ]; then
             echo "Expected exactly one .deb, found ${#packages[@]}"
-            printf '%s\n' "${packages[@]}"
+            printf '%s\\n' "${packages[@]}"
             exit 1
           fi
           deb="${packages[0]}"
