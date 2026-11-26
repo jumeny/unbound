@@ -95,6 +95,7 @@ static void browserLoginStartFlow(void)
         }];
 }
 
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 260200
 static void openSafariExtensionSettings(NSString *identifier) API_AVAILABLE(ios(26.2))
 {
     [SFSafariSettings
@@ -112,6 +113,7 @@ static void openSafariExtensionSettings(NSString *identifier) API_AVAILABLE(ios(
                                           title:@"Could Not Open Settings"];
                            }];
 }
+#endif
 
 static void browserLoginStart(void)
 {
@@ -123,6 +125,7 @@ static void browserLoginStart(void)
         return;
     }
 
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 260200
     if (@available(iOS 26.2, *))
     {
         NSString *identifier = safariExtensionIdentifier();
@@ -181,6 +184,7 @@ static void browserLoginStart(void)
         return;
     }
 
+#endif
     browserLoginStartFlow();
 }
 
