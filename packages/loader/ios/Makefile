@@ -3,6 +3,7 @@ FINALPACKAGE=1
 INSTALL_TARGET_PROCESSES = Discord
 
 ARCHS := arm64
+DEB_ARCH := iphoneos-arm64e
 TARGET := iphone:clang:latest:15.0
 COMMIT_HASH := $(shell git rev-parse HEAD)
 COMMIT_SHORT_HASH := $(shell git rev-parse --short HEAD)
