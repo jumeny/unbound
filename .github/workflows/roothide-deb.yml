@@ -68,7 +68,7 @@ jobs:
           packages=(ios/packages/*.deb)
           if [ "${#packages[@]}" -ne 1 ]; then
             echo "Expected exactly one .deb, found ${#packages[@]}"
-            printf '%s\\n' "${packages[@]}"
+            printf '%s\n' "${packages[@]}"
             exit 1
           fi
           deb="${packages[0]}"
