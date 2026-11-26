@@ -1,0 +1,77 @@
+name: Build RootHide Debian package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [roothide-build]
+    paths:
+      - "packages/loader/**"
+      - ".github/workflows/roothide-deb.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      THEOS: ${{ runner.temp }}/theos
+      THEOS_PACKAGE_SCHEME: roothide
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_INSTALL_CLEANUP: "1"
+
+    steps:
+      - name: Checkout source and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set up Go build tools
+        uses: ./.github/actions/setup-go-tools
+
+      - name: Install build dependencies
+        run: |
+          brew install ldid make autoconf automake libtool
+          echo "THEOS=$THEOS" >> "$GITHUB_ENV"
+          echo "$THEOS/bin" >> "$GITHUB_PATH"
+
+      - name: Install RootHide Theos
+        run: |
+          set -euo pipefail
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/roothide/theos/master/bin/install-theos)"
+          test -d "$THEOS/makefiles"
+
+      - name: Build RootHide package
+        working-directory: packages/loader
+        run: |
+          set -euo pipefail
+          unbound-tools build tweak --configuration release --non-interactive
+
+      - name: Verify Debian package metadata
+        working-directory: packages/loader
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          packages=(ios/packages/*.deb)
+          if [ "${#packages[@]}" -ne 1 ]; then
+            echo "Expected exactly one .deb, found ${#packages[@]}"
+            printf '%s\n' "${packages[@]}"
+            exit 1
+          fi
+          deb="${packages[0]}"
+          dpkg-deb --info "$deb"
+          architecture="$(dpkg-deb -f "$deb" Architecture)"
+          package="$(dpkg-deb -f "$deb" Package)"
+          test "$architecture" = "iphoneos-arm64e"
+          test "$package" = "app.unbound.ios"
+          echo "Verified: $deb ($package, $architecture)"
+
+      - name: Upload RootHide .deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: unbound-roothide-deb
+          path: packages/loader/ios/packages/*.deb
+          if-no-files-found: error
+          retention-days: 14
