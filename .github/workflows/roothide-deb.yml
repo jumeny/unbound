@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          brew install ldid make autoconf automake libtool
+          brew install ldid make autoconf automake libtool dpkg
           echo "THEOS=$RUNNER_TEMP/theos" >> "$GITHUB_ENV"
           {
             echo "$(brew --prefix make)/libexec/gnubin"
