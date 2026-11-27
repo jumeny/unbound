@@ -55,6 +55,7 @@ static void browserLoginClear(void)
     [defaults removeObjectForKey:BrowserLoginDateKey];
 }
 
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 260200
 static NSString *safariExtensionIdentifier(void)
 {
     NSString *extensionsPath =
@@ -65,6 +66,7 @@ static NSString *safariExtensionIdentifier(void)
     NSBundle *extensionBundle = [NSBundle bundleWithPath:extensionPath];
     return [extensionBundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
 }
+#endif
 
 static void browserLoginStartFlow(void)
 {
