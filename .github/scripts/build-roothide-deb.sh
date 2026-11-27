@@ -27,7 +27,13 @@ require_command gmake
 require_command dpkg-deb
 require_command shasum
 
+printf 'Using unbound-tools: %s\n' "$(command -v unbound-tools)"
+printf 'Using gmake: %s\n' "$(command -v gmake)"
+printf 'Using dpkg-deb: %s\n' "$(command -v dpkg-deb)"
+printf 'Using shasum: %s\n' "$(command -v shasum)"
+
 mkdir -p "$PACKAGE_DIR"
+rm -f "$PACKAGE_DIR"/*.deb "$PACKAGE_DIR"/*.deb.sha256
 
 printf 'Building the iOS package from %s\n' "$LOADER_ROOT"
 printf 'Theos: %s\n' "$THEOS"
