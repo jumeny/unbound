@@ -72,3 +72,5 @@ jobs:
             packages/loader/ios/packages/*.deb.sha256
           if-no-files-found: error
           retention-days: 14
+
+# Trigger a RootHide package build for the merged in-app warning change.
