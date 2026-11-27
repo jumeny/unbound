@@ -6,5 +6,7 @@
 
 + (void)show;
 + (void)hide;
++ (void)showAttestationWarning;
++ (void)hideAttestationWarning;
 
 @end
