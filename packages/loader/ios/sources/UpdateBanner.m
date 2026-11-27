@@ -6,8 +6,10 @@ static const NSTimeInterval kRetrySeconds = 0.25;
 static const CGFloat kPillHeight          = 36.0;
 static const CGFloat kPillPadding         = 16.0;
 
-static UIWindow *bannerWindow = nil;
-static BOOL wanted            = NO;
+static UIWindow *bannerWindow  = nil;
+static BOOL wanted             = NO;
+static UIWindow *warningWindow = nil;
+static BOOL warningWanted      = NO;
 
 // Launch may still be on its storyboard; any connected window scene can host the pill.
 static UIWindowScene *hostScene(void)
@@ -62,6 +64,19 @@ static UIView *pillView(void)
     ]];
     return pill;
 }
+
+@interface UBNoticePassthroughView : UIView
+@end
+
+@implementation UBNoticePassthroughView
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UIView *hit = [super hitTest:point withEvent:event];
+    return hit == self ? nil : hit;
+}
+
+@end
 
 @implementation UpdateBanner
 
@@ -121,6 +136,108 @@ static UIView *pillView(void)
     window.hidden = NO;
     bannerWindow  = window;
     [UIView animateWithDuration:0.25 animations:^{ window.alpha = 1.0; }];
+}
+
+
++ (void)showAttestationWarning
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        warningWanted = YES;
+        [self attachAttestationWarning];
+    });
+}
+
++ (void)hideAttestationWarning
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        warningWanted    = NO;
+        UIWindow *window = warningWindow;
+        warningWindow    = nil;
+        [UIView animateWithDuration:0.2
+            animations:^{ window.alpha = 0.0; }
+            completion:^(BOOL finished) { window.hidden = YES; }];
+    });
+}
+
++ (void)attachAttestationWarning
+{
+    if (!warningWanted || warningWindow)
+    {
+        return;
+    }
+
+    UIWindowScene *scene = hostScene();
+    if (!scene)
+    {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t) (kRetrySeconds * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{ [self attachAttestationWarning]; });
+        return;
+    }
+
+    UIWindow *window                               = [[UIWindow alloc] initWithWindowScene:scene];
+    window.windowLevel                             = UIWindowLevelStatusBar + 1;
+    window.userInteractionEnabled                  = YES;
+    window.backgroundColor                         = UIColor.clearColor;
+    window.rootViewController                      = [[UIViewController alloc] init];
+    window.rootViewController.view =
+        [[UBNoticePassthroughView alloc] initWithFrame:UIScreen.mainScreen.bounds];
+    window.rootViewController.view.backgroundColor = UIColor.clearColor;
+
+    UIVisualEffectView *card = [[UIVisualEffectView alloc]
+        initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemMaterial]];
+    card.layer.cornerRadius  = 14.0;
+    card.layer.masksToBounds = YES;
+    card.translatesAutoresizingMaskIntoConstraints = NO;
+
+    UILabel *icon = [[UILabel alloc] init];
+    icon.text = @"!";
+    icon.textColor = UIColor.systemRedColor;
+    icon.font = [UIFont systemFontOfSize:20.0 weight:UIFontWeightBold];
+    icon.textAlignment = NSTextAlignmentCenter;
+
+    UILabel *label = [[UILabel alloc] init];
+    label.text = [CoreBridge text:@"UNBOUND_NATIVE_ATTESTATION_BANNER"
+                           english:@"Unbound couldn't verify this build. Details are in the logs."];
+    label.font = [UIFont systemFontOfSize:13.0 weight:UIFontWeightMedium];
+    label.textColor = UIColor.labelColor;
+    label.numberOfLines = 2;
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+
+    UIButton *close = [UIButton buttonWithType:UIButtonTypeSystem];
+    [close setTitle:@"×" forState:UIControlStateNormal];
+    close.titleLabel.font = [UIFont systemFontOfSize:24.0 weight:UIFontWeightRegular];
+    close.accessibilityLabel = @"Dismiss integrity warning";
+    [close addAction:[UIAction actionWithHandler:^(__kindof UIAction *action) {
+        [self hideAttestationWarning];
+    }] forControlEvents:UIControlEventTouchUpInside];
+
+    UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:@[ icon, label, close ]];
+    stack.axis = UILayoutConstraintAxisHorizontal;
+    stack.spacing = 10.0;
+    stack.alignment = UIStackViewAlignmentCenter;
+    stack.translatesAutoresizingMaskIntoConstraints = NO;
+
+    [window.rootViewController.view addSubview:card];
+    [card.contentView addSubview:stack];
+    [NSLayoutConstraint activateConstraints:@[
+        [card.topAnchor constraintEqualToAnchor:window.rootViewController.view.safeAreaLayoutGuide.topAnchor
+                                        constant:8.0],
+        [card.leadingAnchor constraintEqualToAnchor:window.rootViewController.view.leadingAnchor
+                                           constant:16.0],
+        [card.trailingAnchor constraintEqualToAnchor:window.rootViewController.view.trailingAnchor
+                                            constant:-16.0],
+        [card.heightAnchor constraintEqualToConstant:68.0],
+        [stack.leadingAnchor constraintEqualToAnchor:card.contentView.leadingAnchor constant:12.0],
+        [stack.trailingAnchor constraintEqualToAnchor:card.contentView.trailingAnchor constant:-8.0],
+        [stack.centerYAnchor constraintEqualToAnchor:card.contentView.centerYAnchor],
+        [icon.widthAnchor constraintEqualToConstant:22.0],
+        [close.widthAnchor constraintEqualToConstant:28.0],
+    ]];
+
+    window.alpha  = 0.0;
+    window.hidden = NO;
+    warningWindow = window;
+    [UIView animateWithDuration:0.2 animations:^{ window.alpha = 1.0; }];
 }
 
 @end

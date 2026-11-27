@@ -671,14 +671,7 @@ static void prepareLoading(id instance)
             {
                 [Logger error:LOG_CATEGORY_DEFAULT
                        format:@"Embedded tweak attestation verification failed"];
-                [Utilities alert:@(loader::text("UNBOUND_NATIVE_ATTESTATION_WARNING",
-                                                loader::diagnostics::kAttestationWarningMessage)
-                                       .c_str())
-                           title:@(loader::text("UNBOUND_NATIVE_ATTESTATION_WARNING_TITLE",
-                                                loader::diagnostics::kAttestationWarningTitle)
-                                       .c_str())
-                         timeout:loader::diagnostics::kAttestationWarningSeconds
-                         warning:YES];
+                [UpdateBanner showAttestationWarning];
             }
         });
     });
