@@ -121,8 +121,6 @@ static UIView *pillView(void)
     window.userInteractionEnabled                  = NO;
     window.backgroundColor                         = UIColor.clearColor;
     window.rootViewController                      = [[UIViewController alloc] init];
-    window.rootViewController.view =
-        [[UBNoticePassthroughView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     window.rootViewController.view.backgroundColor = UIColor.clearColor;
 
     UIView *pill                                   = pillView();
@@ -181,6 +179,8 @@ static UIView *pillView(void)
     window.userInteractionEnabled                  = YES;
     window.backgroundColor                         = UIColor.clearColor;
     window.rootViewController                      = [[UIViewController alloc] init];
+    window.rootViewController.view =
+        [[UBNoticePassthroughView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     window.rootViewController.view.backgroundColor = UIColor.clearColor;
 
     UIVisualEffectView *card = [[UIVisualEffectView alloc]
