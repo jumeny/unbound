@@ -65,6 +65,19 @@ static UIView *pillView(void)
     return pill;
 }
 
+@interface UBNoticePassthroughView : UIView
+@end
+
+@implementation UBNoticePassthroughView
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UIView *hit = [super hitTest:point withEvent:event];
+    return hit == self ? nil : hit;
+}
+
+@end
+
 @implementation UpdateBanner
 
 + (void)show
@@ -108,6 +121,8 @@ static UIView *pillView(void)
     window.userInteractionEnabled                  = NO;
     window.backgroundColor                         = UIColor.clearColor;
     window.rootViewController                      = [[UIViewController alloc] init];
+    window.rootViewController.view =
+        [[UBNoticePassthroughView alloc] initWithFrame:UIScreen.mainScreen.bounds];
     window.rootViewController.view.backgroundColor = UIColor.clearColor;
 
     UIView *pill                                   = pillView();
@@ -162,7 +177,7 @@ static UIView *pillView(void)
     }
 
     UIWindow *window                               = [[UIWindow alloc] initWithWindowScene:scene];
-    window.windowLevel                             = UIWindowLevelAlert - 1;
+    window.windowLevel                             = UIWindowLevelStatusBar + 1;
     window.userInteractionEnabled                  = YES;
     window.backgroundColor                         = UIColor.clearColor;
     window.rootViewController                      = [[UIViewController alloc] init];
