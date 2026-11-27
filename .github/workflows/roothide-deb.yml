@@ -19,11 +19,13 @@ permissions:
 jobs:
   build:
     runs-on: macos-15-intel
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       THEOS_PACKAGE_SCHEME: roothide
       HOMEBREW_NO_AUTO_UPDATE: "1"
       HOMEBREW_NO_INSTALL_CLEANUP: "1"
+      HOMEBREW_NO_INSTALL_UPGRADE: "1"
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: "1"
 
     steps:
       - name: Checkout source and submodules
@@ -73,4 +75,4 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-# Trigger a RootHide package build for the merged in-app warning change.
+# Limit Homebrew to the requested tool installs; avoid unrelated image upgrades.
