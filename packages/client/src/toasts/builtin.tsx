@@ -1,6 +1,6 @@
 import { createLogger } from '@unbound-app/logger';
 
-import { getSetting, useUnboundSettings } from '~/settings/unbound';
+import { getSetting, setSetting, useUnboundSettings } from '~/settings/unbound';
 import { createPatcher } from '~/patcher/create-patcher';
 import type { SectionEntry } from '~/settings/section';
 import type { MetroFilter } from '~/metro/filters';
@@ -26,6 +26,14 @@ const waits: Array<() => void> = [];
 export function start() {
 	patchToastContainer();
 	patchToastAPI();
+
+	if (getSetting('integrity-warning.pending')) {
+		setSetting('integrity-warning.pending', false);
+		show({
+			title: "Unbound couldn't verify this build.",
+			icon: 'WarningIcon',
+		});
+	}
 }
 
 /** Restores Discord's toast container and toast API. */
