@@ -97,20 +97,32 @@ static void browserLoginStartFlow(void)
 
 static void openSafariExtensionSettings(NSString *identifier) API_AVAILABLE(ios(26.2))
 {
-    [SFSafariSettings
-        openExtensionsSettingsForIdentifiers:@[ identifier ]
-                           completionHandler:^(NSError *error) {
-                               if (!error)
-                               {
-                                   return;
-                               }
+    // Resolve this iOS 26 API at runtime so older Theos SDK headers can still build the loader.
+    Class settingsClass = NSClassFromString(@"SFSafariSettings");
+    SEL settingsSelector =
+        NSSelectorFromString(@"openExtensionsSettingsForIdentifiers:completionHandler:");
+    if (!settingsClass || ![settingsClass respondsToSelector:settingsSelector])
+    {
+        [Logger error:LOG_CATEGORY_DEFAULT
+               format:@"Safari extension settings API is unavailable."];
+        [Utilities alert:@"Open Settings, then Apps, Safari, Extensions."
+                   title:@"Could Not Open Settings"];
+        return;
+    }
 
-                               [Logger
-                                    error:LOG_CATEGORY_DEFAULT
-                                   format:@"Failed to open Safari extension settings: %@.", error];
-                               [Utilities alert:@"Open Settings, then Apps, Safari, Extensions."
-                                          title:@"Could Not Open Settings"];
-                           }];
+    typedef void (*OpenSettings)(id, SEL, NSArray<NSString *> *, void (^)(NSError *error));
+    OpenSettings openSettings = (OpenSettings) objc_msgSend;
+    openSettings(settingsClass, settingsSelector, @[ identifier ], ^(NSError *error) {
+        if (!error)
+        {
+            return;
+        }
+
+        [Logger error:LOG_CATEGORY_DEFAULT
+               format:@"Failed to open Safari extension settings: %@.", error];
+        [Utilities alert:@"Open Settings, then Apps, Safari, Extensions."
+                   title:@"Could Not Open Settings"];
+    });
 }
 
 static void browserLoginStart(void)
@@ -135,49 +147,71 @@ static void browserLoginStart(void)
             return;
         }
 
-        [SFSafariExtensionManager
-            getStateOfExtensionWithIdentifier:identifier
-                            completionHandler:^(SFSafariExtensionState *state, NSError *error) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    if (error || !state)
-                                    {
-                                        [Logger error:LOG_CATEGORY_DEFAULT
-                                               format:@"Could not read Safari extension state: %@.",
-                                                      error];
-                                        [Utilities
-                                            alert:@"Discord could not check whether the Safari "
-                                                  @"extension is enabled."
-                                            title:@"Could Not Check Extension"];
-                                        return;
-                                    }
+        // These Safari APIs are newer than the SDK bundled with some Theos installations.
+        // Resolve them dynamically to preserve runtime checks without requiring those headers.
+        Class managerClass = NSClassFromString(@"SFSafariExtensionManager");
+        SEL stateSelector =
+            NSSelectorFromString(@"getStateOfExtensionWithIdentifier:completionHandler:");
+        if (!managerClass || ![managerClass respondsToSelector:stateSelector])
+        {
+            [Logger error:LOG_CATEGORY_DEFAULT
+                   format:@"Safari extension state API is unavailable; continuing without a state check."];
+            browserLoginStartFlow();
+            return;
+        }
 
-                                    if (!state.isEnabled)
-                                    {
-                                        [Logger info:LOG_CATEGORY_DEFAULT
-                                              format:@"Safari extension is disabled."];
-                                        [Utilities
-                                              alert:@"Enable the Safari extension "
-                                                    @"in Settings, then try browser login again."
-                                              title:@"Safari Extension Disabled"
-                                            buttons:@[
-                                                [UIAlertAction
-                                                    actionWithTitle:@"Open Settings"
-                                                              style:UIAlertActionStyleDefault
-                                                            handler:^(UIAlertAction *action) {
-                                                                openSafariExtensionSettings(
-                                                                    identifier);
-                                                            }],
-                                                [UIAlertAction
-                                                    actionWithTitle:@"Cancel"
-                                                              style:UIAlertActionStyleCancel
-                                                            handler:nil],
-                                            ]];
-                                        return;
-                                    }
+        typedef void (*GetExtensionState)(id, SEL, NSString *,
+                                          void (^)(id state, NSError *error));
+        GetExtensionState getState = (GetExtensionState) objc_msgSend;
+        getState(managerClass, stateSelector, identifier, ^(id state, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (error || !state)
+                {
+                    [Logger error:LOG_CATEGORY_DEFAULT
+                           format:@"Could not read Safari extension state: %@.", error];
+                    [Utilities
+                        alert:@"Discord could not check whether the Safari extension is enabled."
+                        title:@"Could Not Check Extension"];
+                    return;
+                }
 
-                                    browserLoginStartFlow();
-                                });
-                            }];
+                SEL isEnabledSelector = NSSelectorFromString(@"isEnabled");
+                if (![state respondsToSelector:isEnabledSelector])
+                {
+                    [Logger error:LOG_CATEGORY_DEFAULT
+                           format:@"Safari extension enabled-state property is unavailable."];
+                    [Utilities
+                        alert:@"Discord could not check whether the Safari extension is enabled."
+                        title:@"Could Not Check Extension"];
+                    return;
+                }
+
+                BOOL isEnabled = ((BOOL (*)(id, SEL)) objc_msgSend)(state, isEnabledSelector);
+                if (!isEnabled)
+                {
+                    [Logger info:LOG_CATEGORY_DEFAULT format:@"Safari extension is disabled."];
+                    [Utilities
+                          alert:@"Enable the Safari extension "
+                                @"in Settings, then try browser login again."
+                          title:@"Safari Extension Disabled"
+                        buttons:@[
+                            [UIAlertAction
+                                actionWithTitle:@"Open Settings"
+                                          style:UIAlertActionStyleDefault
+                                        handler:^(UIAlertAction *action) {
+                                            openSafariExtensionSettings(identifier);
+                                        }],
+                            [UIAlertAction
+                                actionWithTitle:@"Cancel"
+                                          style:UIAlertActionStyleCancel
+                                        handler:nil],
+                        ]];
+                    return;
+                }
+
+                browserLoginStartFlow();
+            });
+        });
         return;
     }
 
