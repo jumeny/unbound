@@ -7,8 +7,6 @@ static const CGFloat kPillHeight          = 36.0;
 static const CGFloat kPillPadding         = 16.0;
 
 static UIWindow *bannerWindow = nil;
-static UIWindow *warningWindow = nil;
-static uint64_t warningGeneration = 0;
 static BOOL wanted            = NO;
 
 // Launch may still be on its storyboard; any connected window scene can host the pill.
@@ -66,89 +64,6 @@ static UIView *pillView(void)
 }
 
 @implementation UpdateBanner
-
-+ (void)showIntegrityWarning
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIWindowScene *scene = hostScene();
-        if (!scene)
-        {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
-                                         (int64_t) (kRetrySeconds * NSEC_PER_SEC)),
-                           dispatch_get_main_queue(), ^{ [self showIntegrityWarning]; });
-            return;
-        }
-
-        UIWindow *previous = warningWindow;
-        warningWindow = nil;
-        previous.hidden = YES;
-
-        UIVisualEffectView *pill = [[UIVisualEffectView alloc]
-            initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemMaterial]];
-        pill.layer.cornerRadius = 18.0;
-        pill.layer.masksToBounds = YES;
-
-        UIImageView *icon = [[UIImageView alloc]
-            initWithImage:[UIImage systemImageNamed:@"exclamationmark.triangle.fill"]];
-        icon.tintColor = UIColor.systemOrangeColor;
-        icon.contentMode = UIViewContentModeScaleAspectFit;
-
-        UILabel *label = [[UILabel alloc] init];
-        label.text = @"Unbound couldn't verify this build.";
-        label.font = [UIFont systemFontOfSize:14.0 weight:UIFontWeightSemibold];
-        label.textColor = UIColor.labelColor;
-        label.numberOfLines = 1;
-
-        UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:@[ icon, label ]];
-        stack.spacing = 9.0;
-        stack.alignment = UIStackViewAlignmentCenter;
-        stack.translatesAutoresizingMaskIntoConstraints = NO;
-        [pill.contentView addSubview:stack];
-        [NSLayoutConstraint activateConstraints:@[
-            [icon.widthAnchor constraintEqualToConstant:16.0],
-            [icon.heightAnchor constraintEqualToConstant:16.0],
-            [stack.centerYAnchor constraintEqualToAnchor:pill.contentView.centerYAnchor],
-            [stack.leadingAnchor constraintEqualToAnchor:pill.contentView.leadingAnchor constant:16.0],
-            [stack.trailingAnchor constraintEqualToAnchor:pill.contentView.trailingAnchor constant:-16.0],
-            [pill.heightAnchor constraintGreaterThanOrEqualToConstant:44.0],
-        ]];
-
-        UIWindow *window = [[UIWindow alloc] initWithWindowScene:scene];
-        window.windowLevel = UIWindowLevelStatusBar + 1;
-        window.userInteractionEnabled = NO;
-        window.backgroundColor = UIColor.clearColor;
-        window.rootViewController = [[UIViewController alloc] init];
-        window.rootViewController.view.backgroundColor = UIColor.clearColor;
-        pill.translatesAutoresizingMaskIntoConstraints = NO;
-        [window.rootViewController.view addSubview:pill];
-        [NSLayoutConstraint activateConstraints:@[
-            [pill.centerXAnchor constraintEqualToAnchor:window.rootViewController.view.centerXAnchor],
-            [pill.topAnchor constraintEqualToAnchor:window.rootViewController.view.safeAreaLayoutGuide.topAnchor constant:8.0],
-        ]];
-
-        window.alpha = 0.0;
-        window.hidden = NO;
-        warningWindow = window;
-        uint64_t generation = ++warningGeneration;
-        [UIView animateWithDuration:0.2 animations:^{ window.alpha = 1.0; }];
-
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
-                       dispatch_get_main_queue(), ^{
-            if (generation != warningGeneration || warningWindow != window)
-            {
-                return;
-            }
-            [UIView animateWithDuration:0.2 animations:^{ window.alpha = 0.0; }
-                             completion:^(BOOL finished) {
-                if (warningWindow == window)
-                {
-                    window.hidden = YES;
-                    warningWindow = nil;
-                }
-            }];
-        });
-    });
-}
 
 + (void)show
 {
