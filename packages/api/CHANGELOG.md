@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.4.0](https://github.com/jumeny/unbound/compare/api-v1.3.1...api-v1.4.0) (2026-11-28)
+
+
+### Features
+
+* **client:** font packs and toast progress bars ([#2209](https://github.com/jumeny/unbound/issues/2209)) ([31d3ee0](https://github.com/jumeny/unbound/commit/31d3ee0227e011dd8614e7cd1eb8cab0335ebe5c))
+* **client:** let a patch run after every other patch on a method ([#2112](https://github.com/jumeny/unbound/issues/2112)) ([343c3bb](https://github.com/jumeny/unbound/commit/343c3bb302400c2885f08fcbcf6fab045bfa3b0f))
+* **client:** let plugins add background jobs ([#2059](https://github.com/jumeny/unbound/issues/2059)) ([6e4172b](https://github.com/jumeny/unbound/commit/6e4172b20b58d13542e6f57299610c18d7ef5f75))
+* **client:** let plugins list the hosts their fetch may reach ([#1817](https://github.com/jumeny/unbound/issues/1817)) ([8970734](https://github.com/jumeny/unbound/commit/8970734bc716eafd4f78363c1ddb9e9dd7b9e55f))
+* **client:** let plugins read the account token only when they ask ([#1819](https://github.com/jumeny/unbound/issues/1819)) ([68f8ad3](https://github.com/jumeny/unbound/commit/68f8ad384497b34e002ca58a206debd8963fb430))
+* **client:** let plugins redraw the open chat ([#1925](https://github.com/jumeny/unbound/issues/1925)) ([d61dd7b](https://github.com/jumeny/unbound/commit/d61dd7be91a1940af49395b158d2759b348a369b))
+* **client:** show who holds native hooks in ubd debug status ([#1965](https://github.com/jumeny/unbound/issues/1965)) ([63612d9](https://github.com/jumeny/unbound/commit/63612d94bd1030d430e36e2dbf444fece6d925bc))
+* **client:** tell plugins when memory runs low ([#1948](https://github.com/jumeny/unbound/issues/1948)) ([8057e48](https://github.com/jumeny/unbound/commit/8057e48fa9da3d2933be2c1e4b5ed2103497db3f))
+* **loader:** explain scheduled refresh, add job options, run on charge ([#2071](https://github.com/jumeny/unbound/issues/2071)) ([59c3ee5](https://github.com/jumeny/unbound/commit/59c3ee5a663bdd997fa187f44de0dfbf8aee18a3))
+* **loader:** name the tweak package behind each injected library ([#2028](https://github.com/jumeny/unbound/issues/2028)) ([8b46028](https://github.com/jumeny/unbound/commit/8b460282fcd143a1a6e9e00c74707727aec75d1e))
+* **loader:** report the versions of injected Android modules ([#2046](https://github.com/jumeny/unbound/issues/2046)) ([ed64736](https://github.com/jumeny/unbound/commit/ed647362d33180010988f4d625d571d4f2f52ba5))
+* **loader:** space background refreshes out while nothing changes ([#2073](https://github.com/jumeny/unbound/issues/2073)) ([2a56ecb](https://github.com/jumeny/unbound/commit/2a56ecbfc8937d07e1853cf2278abb1a51589b43))
+* **loader:** stage addon installs and clean up leftover folders ([#2072](https://github.com/jumeny/unbound/issues/2072)) ([1503fa0](https://github.com/jumeny/unbound/commit/1503fa0f6c2b41eda922e599c37a63c572827de8))
+
+
+### Bug Fixes
+
+* **api:** type the fetch scope global and unbreak CI ([#1894](https://github.com/jumeny/unbound/issues/1894)) ([4fc58fd](https://github.com/jumeny/unbound/commit/4fc58fd64192cae5cab76b09820bcae7438c15ab))
+* **ci:** get main's client, minimum-loader and CodeQL checks green ([#1968](https://github.com/jumeny/unbound/issues/1968)) ([6d1a159](https://github.com/jumeny/unbound/commit/6d1a159b2992b19512d5532ed4647cf6bce6a10b))
+* **client:** hold plugin surface restarts until Unbound is ready ([#2280](https://github.com/jumeny/unbound/issues/2280)) ([041f28a](https://github.com/jumeny/unbound/commit/041f28aa2169022b50d29c248a0ec3d18eca39dd))
+* **client:** keep settings an older schema rejects ([#1883](https://github.com/jumeny/unbound/issues/1883)) ([e10e7bb](https://github.com/jumeny/unbound/commit/e10e7bb35ac3a6d31bc94621e24dba1c06281e4d))
+* **client:** pass Client CI after the crash screen dialog host ([#2354](https://github.com/jumeny/unbound/issues/2354)) ([1263ff3](https://github.com/jumeny/unbound/commit/1263ff35ba8ffd44c0a6fdf8879ac3de0f911bea))
+* **loader:** pass and read Yoga's YGValue across the native bridge ([#2019](https://github.com/jumeny/unbound/issues/2019)) ([cda81e3](https://github.com/jumeny/unbound/commit/cda81e39d2566f53b22547ed1698ee712bc25856))
+* **plugins:** match Discord's sheets and rows in 50 plugins ([#2261](https://github.com/jumeny/unbound/issues/2261)) ([ef3e401](https://github.com/jumeny/unbound/commit/ef3e4016c84e201e5a66e2e1b5084aef359780e3))
+* **sdk-generator:** name the real generator in the SDK header ([#2041](https://github.com/jumeny/unbound/issues/2041)) ([b277867](https://github.com/jumeny/unbound/commit/b2778672e0f9e5c62d841049147e134da7700ef9))
+
+
+### Performance Improvements
+
+* **client:** compile components with the React Compiler ([#2274](https://github.com/jumeny/unbound/issues/2274)) ([3b7d47c](https://github.com/jumeny/unbound/commit/3b7d47c2e9a01fda23c1ce415d05d32e4a707619))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @unbound-app/client bumped to 1.4.0
+
 ## [1.3.1](https://github.com/marioparaschiv/unbound/compare/api-v1.3.0...api-v1.3.1) (2026-11-26)
 
 
