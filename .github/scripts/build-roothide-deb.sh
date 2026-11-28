@@ -57,13 +57,15 @@ dpkg-deb --info "$deb"
 
 package_name="$(dpkg-deb -f "$deb" Package)"
 architecture="$(dpkg-deb -f "$deb" Architecture)"
+package_version="$(dpkg-deb -f "$deb" Version)"
 [[ "$package_name" == "app.unbound.ios" ]] || fail "unexpected Debian package name: $package_name"
 [[ "$architecture" == "iphoneos-arm64e" ]] || fail "unexpected Debian architecture: $architecture"
+[[ "$package_version" == "1.13.0" ]] || fail "expected package version 1.13.0, got: $package_version"
 
 shasum -a 256 "$deb" > "$deb.sha256"
 
 printf '\nBuilt package: %s\n' "$deb"
-printf 'Package: %s\nArchitecture: %s\n' "$package_name" "$architecture"
+printf 'Package: %s\nVersion: %s\nArchitecture: %s\n' "$package_name" "$package_version" "$architecture"
 printf 'SHA-256: '
 cat "$deb.sha256"
 
