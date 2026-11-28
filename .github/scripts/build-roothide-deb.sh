@@ -74,6 +74,7 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     printf '### RootHide Debian package\n\n'
     printf '| Field | Value |\n|---|---|\n'
     printf '| Package | `%s` |\n' "$package_name"
+    printf '| Version | `%s` |\n' "$package_version"
     printf '| Architecture | `%s` |\n' "$architecture"
     printf '| File | `%s` |\n' "$(basename "$deb")"
     printf '| SHA-256 | `%s` |\n' "$(awk '{print $1}' "$deb.sha256")"
