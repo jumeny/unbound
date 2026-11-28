@@ -43,6 +43,8 @@ const DEFAULTS = {
 	'updater.notify.client': true,
 	'updater.notify.loader': true,
 	'updater.notify.addons': true,
+	'integrity-warning.disabled': false,
+	'integrity-warning.pending': false,
 	/** The loader reads the `loader.*` keys at launch; an empty URL means the default bundle. */
 	'loader.update.url': '',
 	'loader.update.force': false,
