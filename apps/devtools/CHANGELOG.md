@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.9.0](https://github.com/jumeny/unbound/compare/devtools-v1.8.1...devtools-v1.9.0) (2026-11-28)
+
+
+### Features
+
+* **devtools:** open console values in place and delete one word ([#2182](https://github.com/jumeny/unbound/issues/2182)) ([3e3ab64](https://github.com/jumeny/unbound/commit/3e3ab641d6b49acba12a4e468a80fa0312a8cce3))
+* **devtools:** smooth sidebar press, Windows icon and exe name ([#2168](https://github.com/jumeny/unbound/issues/2168)) ([5dc00c8](https://github.com/jumeny/unbound/commit/5dc00c8df1d1e60d3250d81046fd8b4a31f5fbd2))
+
+
+### Bug Fixes
+
+* **devtools:** jq search predicates, console empty state and follow ([#2190](https://github.com/jumeny/unbound/issues/2190)) ([72373a9](https://github.com/jumeny/unbound/commit/72373a99ddf0c159e1e9baf57dd75c946dddd77f))
+* **devtools:** press sidebar text without scaling artifacts ([#2179](https://github.com/jumeny/unbound/issues/2179)) ([904a5a2](https://github.com/jumeny/unbound/commit/904a5a28e00d5f2b7744b82b5c483e0c755e1816))
+
 ## [1.8.1](https://github.com/marioparaschiv/unbound/compare/devtools-v1.8.0...devtools-v1.8.1) (2026-11-22)
 
 
