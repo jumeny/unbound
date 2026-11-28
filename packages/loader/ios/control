@@ -1,6 +1,6 @@
 Name: Unbound
 Description: A client modification for Discord on mobile. Install plugins, themes, fonts, and icon packs on the official Discord app.
-Version: 1.0.0
+Version: 1.13.0
 Package: app.unbound.ios
 Architecture: iphoneos-arm
 Maintainer: eternal, acquitelol, Adrian Castro
