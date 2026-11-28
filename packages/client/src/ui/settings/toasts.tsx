@@ -36,7 +36,7 @@ function showTestToast() {
  * @description Toast settings: a live preview, then whether toasts show, how they look and how long they stay.
  */
 function ToastsPage() {
-	const settings = useUnboundSettings(({ key }) => key?.startsWith('toasts'));
+	const settings = useUnboundSettings(({ key }) => key?.startsWith('toasts') || key === 'integrity-warning.disabled');
 	const enabled = settings.get('toasts.enabled');
 	const opaque = settings.get('toasts.opacity') === 1;
 
@@ -115,6 +115,16 @@ function ToastsPage() {
 					step={500}
 					format={formatDuration}
 					onChange={(value) => settings.set('toasts.duration', value)}
+				/>
+			</Discord.TableRowGroup>
+
+			<Discord.TableRowGroup>
+				<Discord.TableSwitchRow
+					label="Disable integrity warning"
+					subLabel="Stops Unbound from checking loader's integrity. Proceed with cautions."
+					icon={<Discord.TableRowIcon source={icons.BellIcon} />}
+					value={settings.get('integrity-warning.disabled')}
+					onValueChange={() => settings.toggle('integrity-warning.disabled')}
 				/>
 			</Discord.TableRowGroup>
 		</Page>
