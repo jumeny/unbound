@@ -6,5 +6,6 @@
 
 + (void)show;
 + (void)hide;
++ (void)showIntegrityWarning;
 
 @end
