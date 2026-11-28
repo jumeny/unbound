@@ -671,9 +671,11 @@ static void prepareLoading(id instance)
             {
                 [Logger error:LOG_CATEGORY_DEFAULT
                        format:@"Embedded tweak attestation verification failed"];
-                if (!UnboundSettingsStore().getBoolean("unbound", "integrity-warning.disabled", false))
+                auto &settings = UnboundSettingsStore();
+                if (!settings.getBoolean("unbound", "integrity-warning.disabled", false))
                 {
-                    [UpdateBanner showIntegrityWarning];
+                    settings.set("unbound", "integrity-warning.pending", true);
+                    settings.save();
                 }
             }
         });
